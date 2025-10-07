@@ -491,6 +491,51 @@
             height: 18px;
         }
 
+        /* Loading Popup */
+        .loading-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            border: 2px solid var(--primary-color);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -781,6 +826,14 @@
     </style>
 </head>
 <body>
+    <!-- Loading Popup -->
+    <div id="loadingPopup" class="loading-popup">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Logging into account...</div>
+        </div>
+    </div>
+
     <!-- Top Notice with Rotating Images -->
     <div class="top-notice" id="topNotice">
         <div class="container">
@@ -1240,6 +1293,16 @@
             initializeAuth();
         });
 
+        // Loading Popup Functions
+        function showLoadingPopup(message) {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingPopup').style.display = 'flex';
+        }
+
+        function hideLoadingPopup() {
+            document.getElementById('loadingPopup').style.display = 'none';
+        }
+
         function initializeAuth() {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -1502,16 +1565,25 @@
             const password = document.getElementById('loginPassword').value;
             
             if (email && password) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        currentUser = userCredential.user;
-                        document.getElementById('userStatus').textContent = 'Hi, User';
-                        closeAuthModal();
-                        showToast('Login successful!');
-                    })
-                    .catch((error) => {
-                        showToast('Login failed: ' + error.message, 'error');
-                    });
+                // Show loading popup
+                showLoadingPopup('Logging into account...');
+                
+                // Simulate loading for 3-4 seconds
+                setTimeout(() => {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            currentUser = userCredential.user;
+                            document.getElementById('userStatus').textContent = 'Hi, User';
+                            closeAuthModal();
+                            hideLoadingPopup();
+                            showPage('homePage');
+                            showToast('Login successful!');
+                        })
+                        .catch((error) => {
+                            hideLoadingPopup();
+                            showToast('Login failed: ' + error.message, 'error');
+                        });
+                }, 3500); // 3.5 seconds
             } else {
                 showToast('Please enter email and password', 'error');
             }
@@ -1525,32 +1597,41 @@
             const becomeSeller = document.getElementById('becomeSeller').checked;
             
             if (name && phone && email && password) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        currentUser = userCredential.user;
-                        
-                        // Save user data to Firestore
-                        return db.collection("users").doc(currentUser.uid).set({
-                            name: name,
-                            phone: phone,
-                            email: email,
-                            isSeller: becomeSeller,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                // Show loading popup
+                showLoadingPopup('Creating account please wait...');
+                
+                // Simulate loading for 3-4 seconds
+                setTimeout(() => {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            currentUser = userCredential.user;
+                            
+                            // Save user data to Firestore
+                            return db.collection("users").doc(currentUser.uid).set({
+                                name: name,
+                                phone: phone,
+                                email: email,
+                                isSeller: becomeSeller,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        })
+                        .then(() => {
+                            document.getElementById('userStatus').textContent = `Hi, ${name}`;
+                            isSeller = becomeSeller;
+                            closeAuthModal();
+                            hideLoadingPopup();
+                            showPage('homePage');
+                            showToast('Account created successfully!');
+                            
+                            if (becomeSeller) {
+                                showToast('Seller account activated! You can now upload products.');
+                            }
+                        })
+                        .catch((error) => {
+                            hideLoadingPopup();
+                            showToast('Registration failed: ' + error.message, 'error');
                         });
-                    })
-                    .then(() => {
-                        document.getElementById('userStatus').textContent = `Hi, ${name}`;
-                        isSeller = becomeSeller;
-                        closeAuthModal();
-                        showToast('Account created successfully!');
-                        
-                        if (becomeSeller) {
-                            showToast('Seller account activated! You can now upload products.');
-                        }
-                    })
-                    .catch((error) => {
-                        showToast('Registration failed: ' + error.message, 'error');
-                    });
+                }, 3500); // 3.5 seconds
             } else {
                 showToast('Please fill all fields', 'error');
             }
@@ -1748,6 +1829,9 @@
             }
             if (event.target === document.getElementById('errandBoysModal')) {
                 closeErrandBoysModal();
+            }
+            if (event.target === document.getElementById('loadingPopup')) {
+                // Don't close loading popup when clicking outside
             }
         });
     </script>
