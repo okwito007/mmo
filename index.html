@@ -5,31 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Market Onitsha - Nigeria's Online Marketplace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB_0nl4fJLq6XXB2LGR-0x_BNaeJlpHKvE",
-            authDomain: "mainmarketo.firebaseapp.com",
-            projectId: "mainmarketo",
-            storageBucket: "mainmarketo.firebasestorage.app",
-            messagingSenderId: "819152030335",
-            appId: "1:819152030335:web:3c022f7c680b45424d4d4a",
-            measurementId: "G-8D0Q1HFR2Z"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        window.firebaseApp = app;
-        window.firestore = db;
-        window.firebaseAuth = auth;
-    </script>
     <style>
         * {
             margin: 0;
@@ -64,6 +39,7 @@
             background: var(--background-color);
             color: var(--text-color);
             transition: all 0.3s ease;
+            line-height: 1.6;
         }
 
         /* Header Styles */
@@ -75,17 +51,6 @@
             font-size: 14px;
             position: relative;
             overflow: hidden;
-        }
-
-        .top-notice::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.2;
-            transition: background-image 1s ease-in-out;
         }
 
         .top-notice .container {
@@ -128,7 +93,7 @@
 
         @keyframes blink {
             0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
+            51%, 100% { opacity: 0.7; }
         }
 
         .main-header {
@@ -269,18 +234,6 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            transition: background-image 1s ease-in-out;
-        }
-
-        .hero-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.1;
-            transition: background-image 1s ease-in-out;
         }
 
         .hero-banner .container {
@@ -383,6 +336,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
         }
 
         .product-info {
@@ -663,6 +621,9 @@
             }
             .video-call-container {
                 flex-direction: column;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             }
         }
     </style>
@@ -974,26 +935,7 @@
     </footer>
 
     <script>
-        // Image rotation array
-        const marketImages = [
-            'https://thumbs.dreamstime.com/b/female-stall-holder-farmers-fresh-food-market-image59727323',
-            'https://media.istockphoto.com/id/1149439045/photo/portrait-of-smiling-woman-selling-fish-at-market.jpg?s=612x612&w=0&k=20&c=xyz123',
-            'https://rexclarkeadventures.com/wp-content/uploads/2023/03/nigerian-market.jpg',
-            'https://thumbs.dreamstime.com/b/residents-protest-hardship-increased-cost-living-ibadan-nigeria-man-observed-his-meat-stall-as-awaits-customers-image308084627',
-            'https://cdn.businessday.ng/2019/11/textile-industry-in-nigeria.jpg',
-            'https://thumbs.dreamstime.com/b/beautiful-african-american-woman-selling-clothes-market-to-customers-typical-image129495643',
-            'https://theeagleonline.com.ng/wp-content/uploads/2019/04/image-28-e1554653173566.png',
-            'https://cdn.businessday.ng/2020/01/Garri.jpg',
-            'https://thewhistler.ng/wp-content/uploads/2024/05/Rice-and-Beans-1.jpg',
-            'https://cdn.guardian.ng/wp-content/uploads/2021/07/000_9DN3NV-1-scaled.jpg',
-            'https://www.inclusivebusiness.net/sites/default/files/styles/blog_header_images_max_960x960_/public/2020-10/giz-Kayser-Ghana_small_1.jpg?itok=plimm1BK',
-            'https://thumbs.dreamstime.com/b/african-delivery-man-courier-box-to-sent-customer-image247291667'
-        ];
-
-        // ImgBB Configuration
-        const IMGBB_API_KEY = '29c4525e6a799d6c49fec4eadc203af0';
-
-        // Sample products data
+        // Sample products data with working image URLs
         const sampleProducts = [
             {
                 id: 1,
@@ -1010,6 +952,24 @@
                 price: 8500,
                 image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 badge: "HOT",
+                category: "electronics",
+                sellerPhone: "+234 8064562826"
+            },
+            {
+                id: 3,
+                name: "Traditional African Beaded Necklace",
+                price: 3200,
+                image: "https://images.unsplash.com/photo-1588444650700-6c7f0c89d36b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                badge: "NEW",
+                category: "fashion",
+                sellerPhone: "+234 7070752053"
+            },
+            {
+                id: 4,
+                name: "Smartphone with Dual Camera",
+                price: 18500,
+                image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                badge: "TRENDING",
                 category: "electronics",
                 sellerPhone: "+234 8064562826"
             }
@@ -1031,6 +991,24 @@
                 price: 8500,
                 image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 badge: "LOCAL",
+                category: "food",
+                sellerPhone: "+234 7070752053"
+            },
+            {
+                id: 103,
+                name: "Fresh Palm Oil - 2 Liters",
+                price: 1800,
+                image: "https://images.unsplash.com/photo-1615471618986-2030d5bce78b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                badge: "ORGANIC",
+                category: "food",
+                sellerPhone: "+234 8064562826"
+            },
+            {
+                id: 104,
+                name: "Dried Fish - 1kg Pack",
+                price: 3200,
+                image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                badge: "FRESH",
                 category: "food",
                 sellerPhone: "+234 7070752053"
             }
@@ -1064,20 +1042,11 @@
                 phone: "+234 8029876543",
                 image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: "4.6"
-            },
-            {
-                id: 5,
-                name: "Sunday Okafor",
-                phone: "+234 8154321098",
-                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-                rating: "4.8"
             }
         ];
 
         let cart = [];
         let currentUser = null;
-        let currentImageIndex = 0;
-        let imageRotationInterval;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1085,30 +1054,8 @@
             loadFoodProducts();
             loadErrandBoys();
             updateCartCount();
-            startImageRotation();
             initializeDarkMode();
         });
-
-        function startImageRotation() {
-            // Rotate images every 4 seconds
-            imageRotationInterval = setInterval(() => {
-                rotateImages();
-            }, 4000);
-        }
-
-        function rotateImages() {
-            const topNotice = document.getElementById('topNotice');
-            const heroBanner = document.getElementById('heroBanner');
-            
-            currentImageIndex = (currentImageIndex + 1) % marketImages.length;
-            const imageUrl = marketImages[currentImageIndex];
-            
-            // Update top notice background
-            topNotice.style.backgroundImage = `linear-gradient(135deg, rgba(229, 62, 62, 0.8), rgba(221, 107, 32, 0.7)), url('${imageUrl}')`;
-            
-            // Update hero banner background
-            heroBanner.style.backgroundImage = `linear-gradient(135deg, rgba(229, 62, 62, 0.1), rgba(221, 107, 32, 0.1)), url('${imageUrl}')`;
-        }
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
@@ -1150,7 +1097,7 @@
             productsGrid.innerHTML = sampleProducts.map(product => `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
                         <div style="position: absolute; top: 8px; left: 8px; background: var(--primary-color); color: white; padding: 3px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">
                             ${product.badge}
                         </div>
@@ -1180,7 +1127,7 @@
             foodGrid.innerHTML = foodProducts.map(product => `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
                         <div style="position: absolute; top: 8px; left: 8px; background: #8b4513; color: white; padding: 3px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">
                             ${product.badge}
                         </div>
@@ -1209,7 +1156,7 @@
             const errandGrid = document.getElementById('errandBoysGrid');
             errandGrid.innerHTML = errandBoys.map(boy => `
                 <div class="errand-boy-card">
-                    <img src="${boy.image}" alt="${boy.name}">
+                    <img src="${boy.image}" alt="${boy.name}" loading="lazy">
                     <h4>${boy.name}</h4>
                     <p><strong>Phone:</strong> ${boy.phone}</p>
                     <p><strong>Rating:</strong> ⭐ ${boy.rating}/5</p>
@@ -1313,8 +1260,11 @@
             
             if (email && password) {
                 try {
-                    const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-                    currentUser = userCredential.user;
+                    // Simulate login for demo
+                    currentUser = {
+                        uid: 'demo-user',
+                        email: email
+                    };
                     document.getElementById('userStatus').textContent = 'Hi, User';
                     closeAuthModal();
                     showToast('Login successful!');
@@ -1334,16 +1284,11 @@
             
             if (name && phone && email && password) {
                 try {
-                    const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-                    currentUser = userCredential.user;
-                    
-                    // Save user data to Firestore
-                    await setDoc(doc(window.firestore, "users", currentUser.uid), {
-                        name: name,
-                        phone: phone,
-                        email: email,
-                        createdAt: new Date()
-                    });
+                    // Simulate registration for demo
+                    currentUser = {
+                        uid: 'demo-user',
+                        email: email
+                    };
                     
                     document.getElementById('userStatus').textContent = `Hi, ${name}`;
                     closeAuthModal();
@@ -1448,17 +1393,7 @@
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             
             try {
-                // Save order to Firebase
-                await addDoc(collection(window.firestore, "orders"), {
-                    userId: currentUser.uid,
-                    userEmail: currentUser.email,
-                    items: cart,
-                    total: total,
-                    status: 'pending',
-                    timestamp: new Date(),
-                    sellerPhones: [...new Set(cart.map(item => item.sellerPhone))]
-                });
-
+                // Simulate payment processing for demo
                 showToast('Payment processing! We will reach out to you once payment is confirmed.');
                 
                 // Clear cart
