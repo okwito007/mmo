@@ -57,19 +57,8 @@
             font-size: 14px;
             position: relative;
             overflow: hidden;
-        }
-
-        .top-notice::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.2;
-            transition: background-image 1s ease-in-out;
         }
 
         .top-notice .container {
@@ -254,19 +243,8 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .hero-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.1;
-            transition: background-image 1s ease-in-out;
         }
 
         .hero-banner .container {
@@ -927,6 +905,7 @@
                 <li><a onclick="showPage('wishlistPage')"><i class="fas fa-heart"></i> Wishlist</a></li>
                 <li><a onclick="showPage('ordersPage')"><i class="fas fa-history"></i> Orders</a></li>
                 <li><a onclick="showPage('profilePage')"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a onclick="showPage('sellerDashboard')"><i class="fas fa-store"></i> Seller Dashboard</a></li>
             </ul>
         </div>
     </nav>
@@ -1098,52 +1077,124 @@
     <div id="sellerDashboard" class="page-container">
         <div class="container seller-dashboard">
             <h2 class="section-title">Seller Dashboard</h2>
-            <div class="warning-banner">
-                <i class="fas fa-info-circle"></i> Upload your products to start selling
+            
+            <!-- Seller Status Banner -->
+            <div id="sellerStatusBanner" class="warning-banner">
+                <i class="fas fa-info-circle"></i> 
+                <span id="sellerStatusText">Checking seller status...</span>
             </div>
 
-            <div class="upload-product-form">
-                <h3 style="margin-bottom: 20px;">Add New Product</h3>
-                <div class="form-group">
-                    <label for="productName">Product Name</label>
-                    <input type="text" id="productName" class="form-input" placeholder="Enter product name">
-                </div>
-                <div class="form-group">
-                    <label for="productPrice">Price (₦)</label>
-                    <input type="number" id="productPrice" class="form-input" placeholder="Enter price">
-                </div>
-                <div class="form-group">
-                    <label for="productDescription">Description</label>
-                    <textarea id="productDescription" class="form-input" placeholder="Enter product description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="productCategory">Category</label>
-                    <select id="productCategory" class="form-input">
-                        <option value="fashion">Fashion</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="home">Home & Garden</option>
-                        <option value="food">Food</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="productImage">Product Image</label>
-                    <input type="file" id="productImage" class="form-input file-input" accept="image/*" onchange="previewImage(event)">
-                    <p style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin-top: 5px;">
-                        Max 10MB. Supported: JPG, PNG, WebP. Images will be compressed to 100-200KB.
-                    </p>
-                    
-                    <!-- Image Preview -->
-                    <div id="imagePreview" style="display: none; margin-top: 10px; text-align: center;">
-                        <img id="preview" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid var(--primary-color);">
-                        <div style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin-top: 5px;">
-                            <span id="fileSizeBefore">0 KB</span> → <span id="fileSizeAfter">0 KB</span>
+            <!-- Seller Stats -->
+            <div id="sellerStats"></div>
+
+            <!-- Product Upload Form (only for verified sellers) -->
+            <div id="uploadFormContainer" style="display: none;">
+                <div class="upload-product-form">
+                    <h3 style="margin-bottom: 20px;">Add New Product</h3>
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" class="form-input" placeholder="Enter product name">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price (₦) *</label>
+                        <input type="number" id="productPrice" class="form-input" placeholder="Enter price">
+                    </div>
+                    <div class="form-group">
+                        <label for="productQuantity">Quantity Available *</label>
+                        <input type="number" id="productQuantity" class="form-input" placeholder="How many do you have?" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description *</label>
+                        <textarea id="productDescription" class="form-input" placeholder="Enter product description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" class="form-input">
+                            <option value="fashion">Fashion</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="home">Home & Garden</option>
+                            <option value="food">Food</option>
+                            <option value="beauty">Beauty & Cosmetics</option>
+                            <option value="sports">Sports & Fitness</option>
+                            <option value="books">Books & Stationery</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCondition">Condition *</label>
+                        <select id="productCondition" class="form-input">
+                            <option value="new">Brand New</option>
+                            <option value="used">Used - Good</option>
+                            <option value="refurbished">Refurbished</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productLocation">Location in Market *</label>
+                        <input type="text" id="productLocation" class="form-input" placeholder="e.g., Oshodi Market, Stall 45">
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">Product Image</label>
+                        <input type="file" id="productImage" class="form-input file-input" accept="image/*" onchange="previewImage(event)">
+                        <p style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin-top: 5px;">
+                            Max 10MB. Supported: JPG, PNG, WebP. Images will be compressed to 100-200KB.
+                        </p>
+                        
+                        <!-- Image Preview -->
+                        <div id="imagePreview" style="display: none; margin-top: 10px; text-align: center;">
+                            <img id="preview" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid var(--primary-color);">
+                            <div style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin-top: 5px;">
+                                <span id="fileSizeBefore">0 KB</span> → <span id="fileSizeAfter">0 KB</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <button class="btn btn-primary" onclick="uploadProduct()" style="width: 100%;">
-                    <i class="fas fa-upload"></i> Upload Product
-                </button>
+                    <button class="btn btn-primary" onclick="uploadProduct()" style="width: 100%;">
+                        <i class="fas fa-upload"></i> Upload Product
+                    </button>
+                    <p style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin-top: 10px; text-align: center;">
+                        * Required fields
+                    </p>
+                </div>
+            </div>
+
+            <!-- Seller Registration Form (for non-sellers) -->
+            <div id="sellerRegistrationForm" style="display: none;">
+                <div style="background: var(--card-bg); padding: 30px; border-radius: 12px; text-align: center; border: 2px solid var(--primary-color);">
+                    <i class="fas fa-store" style="font-size: 48px; color: var(--primary-color); margin-bottom: 15px;"></i>
+                    <h3>Become a Seller</h3>
+                    <p style="margin: 15px 0; color: var(--text-color); opacity: 0.8;">
+                        Sell your products to thousands of customers on Main Market Onitsha
+                    </p>
+                    
+                    <div style="background: var(--footer-bg); padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">Benefits:</h4>
+                        <ul style="padding-left: 20px; margin-bottom: 20px;">
+                            <li>Free product listing</li>
+                            <li>Direct customer contact</li>
+                            <li>WhatsApp video call feature</li>
+                            <li>Secure payment system</li>
+                            <li>Track your sales and customers</li>
+                        </ul>
+                        
+                        <div class="form-group">
+                            <label for="sellerAddress">Business Address *</label>
+                            <input type="text" id="sellerAddress" class="form-input" placeholder="Where is your shop located?">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sellerDescription">What do you sell? *</label>
+                            <textarea id="sellerDescription" class="form-input" placeholder="Describe your products..." rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="completeSellerRegistration()" style="width: 100%;">
+                        <i class="fas fa-check-circle"></i> Complete Seller Registration
+                    </button>
+                    
+                    <button class="btn btn-outline" onclick="showPage('homePage')" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-arrow-left"></i> Maybe Later
+                    </button>
+                </div>
             </div>
 
             <div id="sellerProductsGrid" class="products-grid">
@@ -1242,15 +1293,19 @@
 
             <!-- Register Form -->
             <div id="registerForm" style="display: none;">
-                <input type="text" id="regName" placeholder="Full Name" class="auth-input">
-                <input type="tel" id="regPhone" placeholder="Phone Number" class="auth-input">
-                <input type="email" id="regEmail" placeholder="Email Address" class="auth-input">
-                <input type="password" id="regPassword" placeholder="Password" class="auth-input">
+                <input type="text" id="regName" placeholder="Full Name *" class="auth-input">
+                <input type="tel" id="regPhone" placeholder="Phone Number *" class="auth-input">
+                <input type="email" id="regEmail" placeholder="Email Address *" class="auth-input">
+                <input type="password" id="regPassword" placeholder="Password (minimum 6 characters) *" class="auth-input">
                 
                 <div class="checkbox-container">
                     <input type="checkbox" id="becomeSeller">
                     <label for="becomeSeller">Become a Seller</label>
                 </div>
+                
+                <p style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin: 10px 0;">
+                    * Required fields
+                </p>
                 
                 <button class="btn btn-primary" onclick="registerUser()" style="width: 100%; margin: 10px 0;">
                     <i class="fas fa-user-plus"></i> Create Account
@@ -1283,6 +1338,12 @@
                     <p>Secure Payments</p>
                     <p>Errand Boys</p>
                 </div>
+                <div>
+                    <h4>For Sellers</h4>
+                    <p>Free Listing</p>
+                    <p>Direct Customers</p>
+                    <p>Sales Tracking</p>
+                </div>
             </div>
             <div class="copyright">
                 <p>&copy; 2024 Main Market Onitsha. All rights reserved.</p>
@@ -1308,10 +1369,11 @@
         const db = firebase.firestore();
         const analytics = firebase.analytics();
 
-        // Image rotation array
+        // Image rotation array - UPDATED WITH YOUR NEW IMAGE
         const marketImages = [
             'https://images.unsplash.com/photo-1759807823668-47046433ab61?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            'https://thumbs.dreamstime.com/b/african-women-shopping-food-stuff-local-market-paying-doing-mobile-transfer-via-phone-trader-african-woman-166608929.jpg'
+            'https://thumbs.dreamstime.com/b/african-women-shopping-food-stuff-local-market-paying-doing-mobile-transfer-via-phone-trader-african-woman-166608929.jpg',
+            'https://images.unsplash.com/photo-1769376110247-e2fbda158801?q=80&w=988&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
         ];
 
         // Sample products data
@@ -1460,13 +1522,17 @@
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     currentUser = user;
-                    document.getElementById('userStatus').textContent = 'Hi, User';
+                    document.getElementById('userStatus').textContent = 'Hi, ' + (user.displayName || 'User').split(' ')[0];
+                    
                     // Check if user is seller
                     db.collection("users").doc(user.uid).get().then((doc) => {
                         if (doc.exists) {
                             isSeller = doc.data().isSeller || false;
+                            // Load user's products to marketplace
+                            loadUserProductsToMarketplace();
                         }
                     });
+                    
                     loadWishlist();
                     loadOrders();
                     loadProfile();
@@ -1531,13 +1597,7 @@
                 return;
             }
             
-            if (!isSeller) {
-                showToast('Please complete seller registration');
-                return;
-            }
-            
             showPage('sellerDashboard');
-            loadSellerProducts();
         }
 
         function toggleOsheMarket() {
@@ -1665,9 +1725,13 @@
             const price = document.getElementById('productPrice').value;
             const description = document.getElementById('productDescription').value;
             const category = document.getElementById('productCategory').value;
+            const quantity = document.getElementById('productQuantity').value || 1;
+            const condition = document.getElementById('productCondition').value;
+            const location = document.getElementById('productLocation').value;
             const imageFile = document.getElementById('productImage').files[0];
 
-            if (!name || !price || !description) {
+            // Validation
+            if (!name || !price || !description || !location) {
                 showToast('Please fill all required fields', 'error');
                 return;
             }
@@ -1677,55 +1741,75 @@
                 return;
             }
 
+            if (quantity <= 0) {
+                showToast('Please enter a valid quantity', 'error');
+                return;
+            }
+
             showLoadingPopup('Processing product...');
 
             try {
                 let imageUrl = getSimplePlaceholder();
+                let imageSize = '0 KB';
 
-                // If image is provided, compress and convert to base64
+                // If image is provided
                 if (imageFile) {
                     try {
                         showLoadingPopup('Compressing image...');
-                        const compressedBlob = await compressImage(imageFile, 150);
-                        
-                        // Convert to base64 for GitHub Pages compatibility
+                        const compressedBlob = await compressImage(file, 150);
                         const base64Image = await blobToBase64(compressedBlob);
                         imageUrl = base64Image;
-                        
-                        console.log('Image compressed and converted to base64');
+                        imageSize = (compressedBlob.size / 1024).toFixed(1) + ' KB';
                     } catch (error) {
                         console.warn('Image processing failed:', error);
                     }
                 }
 
-                // Save product to Firebase with base64 image
+                // Get seller info
+                const sellerDoc = await db.collection("users").doc(currentUser.uid).get();
+                const sellerData = sellerDoc.data();
+
+                // Save product to Firebase
                 const productData = {
                     name: name,
                     price: parseInt(price),
                     description: description,
                     category: category,
+                    quantity: parseInt(quantity),
+                    condition: condition,
+                    location: location,
                     image: imageUrl,
+                    imageSize: imageSize,
                     sellerId: currentUser.uid,
+                    sellerName: sellerData.name || currentUser.displayName || "Seller",
+                    sellerPhone: sellerData.phone || "",
                     sellerEmail: currentUser.email,
-                    sellerName: currentUser.displayName || "Seller",
+                    sellerAddress: sellerData.sellerAddress || "",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'active',
-                    hasImage: !!imageFile
+                    views: 0,
+                    sales: 0
                 };
 
                 await db.collection("products").add(productData);
                 
                 hideLoadingPopup();
-                showToast('Product uploaded successfully!');
+                showToast('Product uploaded successfully! It is now live on the marketplace.');
                 
                 // Clear form
                 document.getElementById('productName').value = '';
                 document.getElementById('productPrice').value = '';
                 document.getElementById('productDescription').value = '';
+                document.getElementById('productQuantity').value = '1';
+                document.getElementById('productLocation').value = '';
                 document.getElementById('productImage').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
                 
+                // Reload seller products
                 loadSellerProducts();
+                // Reload user products in marketplace
+                loadUserProductsToMarketplace();
                 
             } catch (error) {
                 hideLoadingPopup();
@@ -1758,7 +1842,7 @@
                     
                     sellerProductsGrid.innerHTML = querySnapshot.docs.map(doc => {
                         const product = doc.data();
-                        const hasImage = product.hasImage && !product.image.includes('data:image/svg');
+                        const hasImage = product.image && !product.image.includes('data:image/svg');
                         
                         return `
                             <div class="product-card">
@@ -1774,9 +1858,12 @@
                                 <div class="product-info">
                                     <h3 class="product-title">${product.name}</h3>
                                     <div class="product-price">₦${product.price.toLocaleString()}</div>
+                                    <div style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin: 5px 0;">
+                                        Quantity: ${product.quantity} | Condition: ${product.condition}
+                                    </div>
                                     <p style="font-size: 11px; color: var(--text-color); opacity: 0.7; margin: 5px 0;">${product.description}</p>
                                     <div style="font-size: 10px; color: var(--text-color); opacity: 0.6; margin: 5px 0;">
-                                        Category: ${product.category}
+                                        Category: ${product.category} | Location: ${product.location}
                                     </div>
                                     <div style="display: flex; gap: 5px; margin-top: 10px;">
                                         <button class="add-to-cart" onclick="editProduct('${doc.id}')" style="background: #ffc107; color: black; flex: 1;">
@@ -1807,18 +1894,19 @@
 
         function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = sampleProducts.map(product => `
+            productsGrid.innerHTML = allProducts.map(product => `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlByb2R1Y3QgSW1hZ2U8L3RleHQ+PC9zdmc+'">
                         <div style="position: absolute; top: 8px; left: 8px; background: var(--primary-color); color: white; padding: 3px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">
-                            ${product.badge}
+                            ${product.badge || 'NEW'}
                         </div>
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
                         <div class="product-price">₦${product.price.toLocaleString()}</div>
-                        <div class="seller-contact">Seller: ${product.sellerPhone}</div>
+                        <div class="seller-contact">Seller: ${product.sellerPhone || product.sellerName || 'Seller'}</div>
+                        ${product.quantity ? `<div style="font-size: 10px; color: #28a745; margin: 3px 0;">${product.quantity} available</div>` : ''}
                         <div class="product-actions">
                             <button class="add-to-cart" onclick="addToCart(${product.id})">
                                 Add to Cart
@@ -1827,7 +1915,7 @@
                                 <i class="${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart"></i>
                             </button>
                         </div>
-                        <button class="btn btn-primary" onclick="startWhatsAppVideoCall('${product.sellerPhone}', '${product.name}')" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 11px; background: #25D366;">
+                        <button class="btn btn-primary" onclick="startWhatsAppVideoCall('${product.sellerPhone || '+2348064562826'}', '${product.name}')" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 11px; background: #25D366;">
                             <i class="fab fa-whatsapp"></i> Video Call Seller on WhatsApp
                         </button>
                     </div>
@@ -1863,6 +1951,35 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function loadUserProductsToMarketplace() {
+            if (!currentUser) return;
+            
+            db.collection("products")
+                .where("sellerId", "==", currentUser.uid)
+                .where("status", "==", "active")
+                .orderBy("createdAt", "desc")
+                .limit(20)
+                .get()
+                .then((querySnapshot) => {
+                    const userProducts = [];
+                    querySnapshot.forEach((doc) => {
+                        const product = doc.data();
+                        product.id = 'user_' + doc.id;
+                        product.badge = 'SELLER';
+                        userProducts.push(product);
+                    });
+                    
+                    // Merge with existing products
+                    allProducts = [...sampleProducts, ...foodProducts, ...userProducts];
+                    
+                    // Reload the products grid
+                    loadProducts();
+                })
+                .catch((error) => {
+                    console.error("Error loading user products:", error);
+                });
         }
 
         function loadErrandBoys() {
@@ -1908,7 +2025,7 @@
 
             const filteredProducts = allProducts.filter(product => 
                 product.name.toLowerCase().includes(searchTerm) ||
-                product.description.toLowerCase().includes(searchTerm) ||
+                (product.description && product.description.toLowerCase().includes(searchTerm)) ||
                 product.category.toLowerCase().includes(searchTerm)
             );
 
@@ -1917,13 +2034,13 @@
                     <div class="product-image">
                         <img src="${product.image}" alt="${product.name}">
                         <div style="position: absolute; top: 8px; left: 8px; background: var(--primary-color); color: white; padding: 3px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">
-                            ${product.badge}
+                            ${product.badge || 'NEW'}
                         </div>
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
                         <div class="product-price">₦${product.price.toLocaleString()}</div>
-                        <div class="seller-contact">Seller: ${product.sellerPhone}</div>
+                        <div class="seller-contact">Seller: ${product.sellerPhone || product.sellerName || 'Seller'}</div>
                         <div class="product-actions">
                             <button class="add-to-cart" onclick="addToCart(${product.id})">
                                 Add to Cart
@@ -1932,7 +2049,7 @@
                                 <i class="${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart"></i>
                             </button>
                         </div>
-                        <button class="btn btn-primary" onclick="startWhatsAppVideoCall('${product.sellerPhone}', '${product.name}')" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 11px; background: #25D366;">
+                        <button class="btn btn-primary" onclick="startWhatsAppVideoCall('${product.sellerPhone || '+2348064562826'}', '${product.name}')" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 11px; background: #25D366;">
                             <i class="fab fa-whatsapp"></i> Video Call Seller on WhatsApp
                         </button>
                     </div>
@@ -1974,7 +2091,7 @@
                 link.classList.remove('active');
             });
 
-            // If showing cart page, load cart items
+            // Special handling for specific pages
             if (pageId === 'cartPage') {
                 loadCartItems();
             }
@@ -1986,6 +2103,10 @@
             }
             if (pageId === 'profilePage') {
                 loadProfile();
+            }
+            if (pageId === 'sellerDashboard') {
+                checkSellerStatus();
+                loadSellerProducts();
             }
         }
 
@@ -2174,7 +2295,13 @@
                 auth.signInWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         currentUser = userCredential.user;
-                        document.getElementById('userStatus').textContent = 'Hi, User';
+                        document.getElementById('userStatus').textContent = 'Hi, ' + (userCredential.user.displayName || 'User').split(' ')[0];
+                        
+                        // Update last login
+                        db.collection("users").doc(currentUser.uid).update({
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
                         closeAuthModal();
                         hideLoadingPopup();
                         showPage('homePage');
@@ -2197,39 +2324,247 @@
             const becomeSeller = document.getElementById('becomeSeller').checked;
             
             if (name && phone && email && password) {
+                // Validate Nigerian phone number
+                const phoneRegex = /^(\+234|0)[789][01]\d{8}$/;
+                if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+                    showToast('Please enter a valid Nigerian phone number', 'error');
+                    return;
+                }
+                
+                // Validate email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showToast('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                // Validate password strength
+                if (password.length < 6) {
+                    showToast('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
                 showLoadingPopup('Creating account please wait...');
                 
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        currentUser = userCredential.user;
-                        
-                        return db.collection("users").doc(currentUser.uid).set({
-                            name: name,
-                            phone: phone,
-                            email: email,
-                            isSeller: becomeSeller,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    })
-                    .then(() => {
-                        document.getElementById('userStatus').textContent = `Hi, ${name}`;
-                        isSeller = becomeSeller;
-                        closeAuthModal();
-                        hideLoadingPopup();
-                        showPage('homePage');
-                        showToast('Account created successfully!');
-                        
-                        if (becomeSeller) {
-                            showToast('Seller account activated! You can now upload products.');
+                // Check if email already exists
+                auth.fetchSignInMethodsForEmail(email)
+                    .then((signInMethods) => {
+                        if (signInMethods.length > 0) {
+                            hideLoadingPopup();
+                            showToast('Email already registered. Please login instead.', 'error');
+                            return;
                         }
+                        
+                        // Create user account
+                        return auth.createUserWithEmailAndPassword(email, password)
+                            .then((userCredential) => {
+                                currentUser = userCredential.user;
+                                
+                                // Update user profile with name
+                                return currentUser.updateProfile({
+                                    displayName: name
+                                }).then(() => {
+                                    // Save additional user data to Firestore
+                                    return db.collection("users").doc(currentUser.uid).set({
+                                        name: name,
+                                        phone: phone,
+                                        email: email,
+                                        isSeller: becomeSeller,
+                                        sellerStatus: becomeSeller ? 'pending' : 'none',
+                                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                                    });
+                                });
+                            })
+                            .then(() => {
+                                document.getElementById('userStatus').textContent = `Hi, ${name.split(' ')[0]}`;
+                                isSeller = becomeSeller;
+                                
+                                // Clear registration form
+                                document.getElementById('regName').value = '';
+                                document.getElementById('regPhone').value = '';
+                                document.getElementById('regEmail').value = '';
+                                document.getElementById('regPassword').value = '';
+                                document.getElementById('becomeSeller').checked = false;
+                                
+                                closeAuthModal();
+                                hideLoadingPopup();
+                                showPage('homePage');
+                                showToast('Account created successfully!');
+                                
+                                if (becomeSeller) {
+                                    showToast('Seller registration submitted! You can now complete seller profile.');
+                                    // Automatically show seller dashboard
+                                    setTimeout(() => {
+                                        showPage('sellerDashboard');
+                                    }, 1500);
+                                }
+                            })
+                            .catch((error) => {
+                                hideLoadingPopup();
+                                console.error('Registration error:', error);
+                                showToast('Registration failed: ' + error.message, 'error');
+                            });
                     })
                     .catch((error) => {
                         hideLoadingPopup();
-                        showToast('Registration failed: ' + error.message, 'error');
+                        showToast('Error checking email: ' + error.message, 'error');
                     });
             } else {
-                showToast('Please fill all fields', 'error');
+                showToast('Please fill all required fields', 'error');
             }
+        }
+
+        // Seller Functions
+        function completeSellerRegistration() {
+            if (!currentUser) {
+                showAuthModal();
+                showToast('Please login to become a seller');
+                return;
+            }
+            
+            const address = document.getElementById('sellerAddress').value;
+            const description = document.getElementById('sellerDescription').value;
+            
+            if (!address || !description) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            showLoadingPopup('Registering as seller...');
+            
+            // Update user document to mark as seller
+            db.collection("users").doc(currentUser.uid).update({
+                isSeller: true,
+                sellerStatus: 'active',
+                sellerAddress: address,
+                sellerDescription: description,
+                sellerSince: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                isSeller = true;
+                hideLoadingPopup();
+                
+                // Hide registration form and show upload form
+                document.getElementById('sellerRegistrationForm').style.display = 'none';
+                document.getElementById('uploadFormContainer').style.display = 'block';
+                document.getElementById('sellerStatusText').textContent = '✓ Seller account active';
+                document.getElementById('sellerStatusBanner').style.background = '#28a745';
+                document.getElementById('sellerStatusBanner').style.color = 'white';
+                
+                showToast('Congratulations! You are now a seller. Start uploading products.');
+                loadSellerStatistics();
+                loadSellerProducts();
+            })
+            .catch((error) => {
+                hideLoadingPopup();
+                showToast('Error: ' + error.message, 'error');
+            });
+        }
+
+        function checkSellerStatus() {
+            if (!currentUser) {
+                document.getElementById('sellerStatusText').textContent = 'Please login to access seller dashboard';
+                document.getElementById('sellerRegistrationForm').style.display = 'none';
+                document.getElementById('uploadFormContainer').style.display = 'none';
+                return;
+            }
+            
+            db.collection("users").doc(currentUser.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        isSeller = userData.isSeller || false;
+                        const sellerStatus = userData.sellerStatus || 'none';
+                        
+                        const statusBanner = document.getElementById('sellerStatusBanner');
+                        const statusText = document.getElementById('sellerStatusText');
+                        const uploadForm = document.getElementById('uploadFormContainer');
+                        const regForm = document.getElementById('sellerRegistrationForm');
+                        
+                        if (isSeller && sellerStatus === 'active') {
+                            // Active seller
+                            statusText.textContent = '✓ Seller account active';
+                            statusBanner.style.background = '#28a745';
+                            statusBanner.style.color = 'white';
+                            uploadForm.style.display = 'block';
+                            regForm.style.display = 'none';
+                            
+                            // Load seller statistics
+                            loadSellerStatistics();
+                        } else if (isSeller && sellerStatus === 'pending') {
+                            // Pending approval
+                            statusText.textContent = '⏳ Seller account pending approval';
+                            statusBanner.style.background = '#ffc107';
+                            statusBanner.style.color = 'black';
+                            uploadForm.style.display = 'none';
+                            regForm.style.display = 'none';
+                        } else {
+                            // Not a seller
+                            statusText.textContent = 'Register as a seller to start selling';
+                            statusBanner.style.background = '#17a2b8';
+                            statusBanner.style.color = 'white';
+                            uploadForm.style.display = 'none';
+                            regForm.style.display = 'block';
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error checking seller status:', error);
+                });
+        }
+
+        function loadSellerStatistics() {
+            if (!currentUser || !isSeller) return;
+            
+            // Get total products
+            db.collection("products")
+                .where("sellerId", "==", currentUser.uid)
+                .get()
+                .then((querySnapshot) => {
+                    const totalProducts = querySnapshot.size;
+                    let totalViews = 0;
+                    let totalSales = 0;
+                    
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        totalViews += (data.views || 0);
+                        totalSales += (data.sales || 0);
+                    });
+                    
+                    // Display statistics
+                    const statsHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div style="background: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${totalProducts}</div>
+                                <div style="font-size: 12px; color: var(--text-color); opacity: 0.8;">Products</div>
+                            </div>
+                            <div style="background: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 24px; font-weight: bold; color: #28a745;">${totalViews}</div>
+                                <div style="font-size: 12px; color: var(--text-color); opacity: 0.8;">Total Views</div>
+                            </div>
+                            <div style="background: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                                <div style="font-size: 24px; font-weight: bold; color: #17a2b8;">${totalSales}</div>
+                                <div style="font-size: 12px; color: var(--text-color); opacity: 0.8;">Total Sales</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to seller dashboard
+                    const sellerStats = document.getElementById('sellerStats');
+                    if (!sellerStats) {
+                        const dashboard = document.querySelector('.seller-dashboard .container');
+                        const statsDiv = document.createElement('div');
+                        statsDiv.id = 'sellerStats';
+                        statsDiv.innerHTML = statsHTML;
+                        dashboard.insertBefore(statsDiv, dashboard.children[2]); // Insert after the status banner
+                    } else {
+                        sellerStats.innerHTML = statsHTML;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading seller statistics:", error);
+                });
         }
 
         // Advanced Features
@@ -2298,63 +2633,106 @@
             if (!currentUser) return;
             
             const ordersList = document.getElementById('ordersList');
-            // Simulated orders - in real app, fetch from Firebase
-            orders = [
-                { id: 1, items: [allProducts[0]], total: 4500, status: 'Delivered', date: '2024-01-15' },
-                { id: 2, items: [allProducts[1]], total: 8500, status: 'Processing', date: '2024-01-14' }
-            ];
-            
-            if (orders.length === 0) {
-                ordersList.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--text-color); opacity: 0.7;">
-                        <i class="fas fa-shopping-bag" style="font-size: 48px; margin-bottom: 15px;"></i>
-                        <p>No orders yet</p>
-                        <p style="font-size: 12px;">Your orders will appear here</p>
-                    </div>
-                `;
-            } else {
-                ordersList.innerHTML = orders.map(order => `
-                    <div class="order-card">
-                        <div style="display: flex; justify-content: between; margin-bottom: 10px;">
-                            <strong>Order #${order.id}</strong>
-                            <span style="color: ${order.status === 'Delivered' ? '#28a745' : '#ffc107'}">${order.status}</span>
+            // Fetch orders from Firebase
+            db.collection("orders")
+                .where("userId", "==", currentUser.uid)
+                .orderBy("timestamp", "desc")
+                .limit(10)
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        ordersList.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: var(--text-color); opacity: 0.7;">
+                                <i class="fas fa-shopping-bag" style="font-size: 48px; margin-bottom: 15px;"></i>
+                                <p>No orders yet</p>
+                                <p style="font-size: 12px;">Your orders will appear here</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    ordersList.innerHTML = querySnapshot.docs.map(doc => {
+                        const order = doc.data();
+                        const date = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString() : 'Recent';
+                        
+                        return `
+                            <div class="order-card">
+                                <div style="display: flex; justify-content: between; margin-bottom: 10px;">
+                                    <strong>Order #${doc.id.substring(0, 8)}</strong>
+                                    <span style="color: ${order.status === 'delivered' ? '#28a745' : order.status === 'shipped' ? '#17a2b8' : '#ffc107'}">
+                                        ${order.status || 'Processing'}
+                                    </span>
+                                </div>
+                                <div style="font-size: 14px; margin-bottom: 10px;">
+                                    ${order.items ? order.items.map(item => item.name).join(', ').substring(0, 50) + '...' : 'Items not available'}
+                                </div>
+                                <div style="display: flex; justify-content: between; font-weight: bold;">
+                                    <span>Total: ₦${order.total ? order.total.toLocaleString() : '0'}</span>
+                                    <span style="font-size: 12px; opacity: 0.7;">${date}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch((error) => {
+                    console.error("Error loading orders:", error);
+                    ordersList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-color); opacity: 0.7;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Error loading orders</p>
+                            <button class="btn btn-primary" onclick="loadOrders()" style="margin-top: 10px;">
+                                Try Again
+                            </button>
                         </div>
-                        <div style="font-size: 14px; margin-bottom: 10px;">
-                            ${order.items.map(item => item.name).join(', ')}
-                        </div>
-                        <div style="display: flex; justify-content: between; font-weight: bold;">
-                            <span>Total: ₦${order.total.toLocaleString()}</span>
-                            <span style="font-size: 12px; opacity: 0.7;">${order.date}</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
+                    `;
+                });
         }
 
         function loadProfile() {
             if (!currentUser) return;
             
-            const profileInfo = document.getElementById('profileInfo');
-            profileInfo.innerHTML = `
-                <div style="text-align: center;">
-                    <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white; font-size: 24px;">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <h3>${currentUser.displayName || 'User'}</h3>
-                    <p style="color: var(--text-color); opacity: 0.7; margin-bottom: 20px;">${currentUser.email}</p>
+            db.collection("users").doc(currentUser.uid).get()
+                .then((doc) => {
+                    const userData = doc.exists ? doc.data() : {};
+                    const profileInfo = document.getElementById('profileInfo');
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
-                        <div style="text-align: center; padding: 15px; background: var(--footer-bg); border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${orders.length}</div>
-                            <div style="font-size: 12px;">Orders</div>
+                    profileInfo.innerHTML = `
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: white; font-size: 24px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>${userData.name || currentUser.displayName || 'User'}</h3>
+                            <p style="color: var(--text-color); opacity: 0.7; margin-bottom: 5px;">${currentUser.email}</p>
+                            <p style="color: var(--text-color); opacity: 0.7; margin-bottom: 20px;">${userData.phone || 'Phone not set'}</p>
+                            
+                            ${isSeller ? `
+                                <div style="background: var(--footer-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+                                    <h4 style="color: #28a745; margin-bottom: 10px;">Seller Account</h4>
+                                    <p style="font-size: 13px; color: var(--text-color); margin-bottom: 5px;">Status: <strong>Active</strong></p>
+                                    ${userData.sellerAddress ? `<p style="font-size: 13px; color: var(--text-color);">Location: ${userData.sellerAddress}</p>` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                                <div style="text-align: center; padding: 15px; background: var(--footer-bg); border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${cart.length}</div>
+                                    <div style="font-size: 12px;">Cart Items</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: var(--footer-bg); border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${wishlist.length}</div>
+                                    <div style="font-size: 12px;">Wishlist</div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-outline" onclick="auth.signOut()" style="width: 100%; margin-top: 20px;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
                         </div>
-                        <div style="text-align: center; padding: 15px; background: var(--footer-bg); border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${wishlist.length}</div>
-                            <div style="font-size: 12px;">Wishlist</div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    `;
+                })
+                .catch((error) => {
+                    console.error("Error loading profile:", error);
+                });
         }
 
         // Toast Notification
@@ -2391,15 +2769,27 @@
             }
         });
 
-        // Product management functions (stubs for future implementation)
+        // Product management functions
         function editProduct(productId) {
             showToast('Edit feature coming soon!');
         }
 
         function deleteProduct(productId) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                showToast('Product deleted successfully!');
-                loadSellerProducts();
+            if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                showLoadingPopup('Deleting product...');
+                
+                db.collection("products").doc(productId).delete()
+                    .then(() => {
+                        hideLoadingPopup();
+                        showToast('Product deleted successfully!');
+                        loadSellerProducts();
+                        // Also reload marketplace to remove the product
+                        loadUserProductsToMarketplace();
+                    })
+                    .catch((error) => {
+                        hideLoadingPopup();
+                        showToast('Error deleting product: ' + error.message, 'error');
+                    });
             }
         }
     </script>
